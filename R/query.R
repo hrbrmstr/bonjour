@@ -11,3 +11,7 @@ bnjr_query <- function(query, scan_time = 10L) {
   ndjson::flatten(res, "tbl")
 
 }
+
+#' @rdname bnjr_discover
+#' @export
+bjr_query <- bnjr_query
