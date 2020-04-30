@@ -1,6 +1,6 @@
 Package: bonjour
 Type: Package
-Title: bonjour title goes here otherwise CRAN checks fail
+Title: Discover and Query Multicast DNS (mDNS)/zeroconf Services
 Version: 0.1.0
 Date: 2020-04-29
 Authors@R: c(
@@ -8,7 +8,15 @@ Authors@R: c(
            comment = c(ORCID = "0000-0001-5670-2640"))
   )
 Maintainer: Bob Rudis <bob@rud.is>
-Description: A good description goes here otherwise CRAN checks fail.
+Description: Multicast DNS (mDNS) provides the ability to perform DNS-like
+   operations on the local link in the absence of any conventional
+   Unicast DNS server. Given a type of service
+   that a client is looking for, and a domain in which the client is
+   looking for that service, this mechanism allows clients to discover
+   a list of named instances of that desired service, using standard
+   DNS queries.  This mechanism is referred to as DNS-based Service
+   Discovery, or DNS-SD. Tools are provided to perform service discovery
+   and query for specific services over multicast DNS (mDNS).
 URL: https://git.rud.is/hrbrmstr/bonjour
 BugReports: https://gitlab.com/hrbrmstr/bonjour/issues
 Encoding: UTF-8
@@ -19,7 +27,8 @@ Suggests:
 Depends: 
     R (>= 3.2.0)
 Imports: 
-    Rcpp
+    Rcpp,
+    ndjson
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0
 LinkingTo: 

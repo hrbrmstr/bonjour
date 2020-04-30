@@ -1,9 +1,14 @@
 #include <Rcpp.h>
-#include <stdio.h>
-#include <errno.h>
-#include "mdns.h"
+#include <cstdio>
+#include <fstream>
+#include <iostream>
 
 using namespace Rcpp;
+
+#include "mdns.h"
+
+#include <stdio.h>
+#include <errno.h>
 
 #ifdef _WIN32
 #  include <iphlpapi.h>
@@ -16,6 +21,14 @@ static char addrbuffer[64];
 static char namebuffer[256];
 static char sendbuffer[256];
 static mdns_record_txt_t txtbuffer[128];
+
+typedef struct {
+  const char* service;
+  const char* hostname;
+  uint32_t address_ipv4;
+  uint8_t* address_ipv6;
+  int port;
+} service_record_t;
 
 static mdns_string_t
   ipv4_address_to_string(char* buffer, size_t capacity, const struct sockaddr_in* addr, size_t addrlen) {
@@ -31,9 +44,8 @@ static mdns_string_t
       else
         len = snprintf(buffer, capacity, "%s", host);
     }
-    if (len >= (int)capacity)
-      len = (int)capacity - 1;
-    mdns_string_t str = {buffer, len};
+    if (len >= (int)capacity) len = (int)capacity - 1;
+    mdns_string_t str = {buffer, (size_t)len};
     return str;
   }
 
@@ -53,7 +65,7 @@ static mdns_string_t
     }
     if (len >= (int)capacity)
       len = (int)capacity - 1;
-    mdns_string_t str = {buffer, len};
+    mdns_string_t str = {buffer, (size_t)len};
     return str;
   }
 
@@ -70,53 +82,37 @@ static int query_callback(int sock, const struct sockaddr* from, size_t addrlen,
                           const void* data, size_t size, size_t offset, size_t length,
                           void* user_data) {
 
-  List *l = static_cast<List *>(user_data);
-
   mdns_string_t fromaddrstr = ip_address_to_string(addrbuffer, sizeof(addrbuffer), from, addrlen);
+  std::string fromstr = std::string(fromaddrstr.str, fromaddrstr.length);
 
   const char* entrytype = (entry == MDNS_ENTRYTYPE_ANSWER) ? "answer" :
     ((entry == MDNS_ENTRYTYPE_AUTHORITY) ? "authority" : "additional");
+
+  std::string rec = "{ \"from\" : \"" + fromstr +
+                    "\", \"entry_type\": \"" + entrytype + "\"";
 
   if (rtype == MDNS_RECORDTYPE_PTR) {
 
     mdns_string_t namestr = mdns_record_parse_ptr(data, size, offset, length,
                                                   namebuffer, sizeof(namebuffer));
 
-    List ptr_l = List::create(
-      _["from"]   = String(fromaddrstr.str),
-      _["name"]   = String(namestr.str),
-      _["type"]   = String("PTR"),
-      _["entry_type"] = String(entrytype),
-      _["rclass"] = rclass,
-      _["ttl"]    = ttl,
-      _["length"] = length
-    );
+    rec = rec + ", \"type\": \"PTR\"";
+    rec = rec + ", \"name\": \"" + std::string(namestr.str, namestr.length) + "\"";
+    rec = rec + ", \"rclass\": " + std::to_string(rclass) + "";
+    rec = rec + ", \"ttl\": " + std::to_string(ttl) + "";
+    rec = rec + ", \"length\": " + std::to_string(length) + "";
 
-    l->push_back(ptr_l);
-
-    printf("%.*s : %s PTR %.*s rclass 0x%x ttl %u length %d\n",
-           MDNS_STRING_FORMAT(fromaddrstr), entrytype,
-           MDNS_STRING_FORMAT(namestr), rclass, ttl, (int)length);
+    // printf("%.*s : %s PTR %.*s rclass 0x%x ttl %u length %d\n",
+    //        MDNS_STRING_FORMAT(fromaddrstr), entrytype,
+    //        MDNS_STRING_FORMAT(namestr), rclass, ttl, (int)length);
 
   } else if (rtype == MDNS_RECORDTYPE_SRV) {
 
     mdns_record_srv_t srv = mdns_record_parse_srv(data, size, offset, length,
                                                   namebuffer, sizeof(namebuffer));
-
-    List srv_l = List::create(
-      _["from"]     = String(fromaddrstr.str),
-      _["type"]     = String("SRV"),
-      _["entry_type"] = String(entrytype),
-      _["priority"] = srv.priority,
-      _["weight"]   = srv.weight,
-      _["port"]     = srv.port
-    );
-
-    l->push_back(srv_l);
-
-    printf("%.*s : %s SRV %.*s priority %d weight %d port %d\n",
-           MDNS_STRING_FORMAT(fromaddrstr), entrytype,
-           MDNS_STRING_FORMAT(srv.name), srv.priority, srv.weight, srv.port);
+    // printf("%.*s : %s SRV %.*s priority %d weight %d port %d\n",
+    //        MDNS_STRING_FORMAT(fromaddrstr), entrytype,
+    //        MDNS_STRING_FORMAT(srv.name), srv.priority, srv.weight, srv.port);
 
   } else if (rtype == MDNS_RECORDTYPE_A) {
 
@@ -124,18 +120,12 @@ static int query_callback(int sock, const struct sockaddr* from, size_t addrlen,
     mdns_record_parse_a(data, size, offset, length, &addr);
     mdns_string_t addrstr = ipv4_address_to_string(namebuffer, sizeof(namebuffer), &addr, sizeof(addr));
 
-    List a_l = List::create(
-      _["from"] = String(fromaddrstr.str),
-      _["type"] = String("A"),
-      _["entry_type"] = String(entrytype),
-      _["addr"] = String(addrstr.str)
-    );
+    rec = rec + ", \"type\": \"A\"";
+    rec = rec + ", \"addr\": \"" + std::string(addrstr.str, addrstr.length) + "\"";
 
-    l->push_back(a_l);
-
-    printf("%.*s : %s A %.*s\n",
-           MDNS_STRING_FORMAT(fromaddrstr), entrytype,
-           MDNS_STRING_FORMAT(addrstr));
+    // printf("%.*s : %s A %.*s\n",
+    //        MDNS_STRING_FORMAT(fromaddrstr), entrytype,
+    //        MDNS_STRING_FORMAT(addrstr));
 
   } else if (rtype == MDNS_RECORDTYPE_AAAA) {
 
@@ -143,152 +133,74 @@ static int query_callback(int sock, const struct sockaddr* from, size_t addrlen,
     mdns_record_parse_aaaa(data, size, offset, length, &addr);
     mdns_string_t addrstr = ipv6_address_to_string(namebuffer, sizeof(namebuffer), &addr, sizeof(addr));
 
-    List aaaa_l = List::create(
-      _["from"] = String(fromaddrstr.str),
-      _["type"] = String("AAAA"),
-      _["entry_type"] = String(entrytype),
-      _["addr"] = String(addrstr.str)
-    );
+    rec = rec + ", \"type\": \"AAAA\"";
+    rec = rec + ", \"addr\": \"" + std::string(addrstr.str, addrstr.length) + "\"";
 
-    l->push_back(aaaa_l);
-
-    printf("%.*s : %s AAAA %.*s\n",
-           MDNS_STRING_FORMAT(fromaddrstr), entrytype,
-           MDNS_STRING_FORMAT(addrstr));
+    // printf("%.*s : %s AAAA %.*s\n",
+    //        MDNS_STRING_FORMAT(fromaddrstr), entrytype,
+    //        MDNS_STRING_FORMAT(addrstr));
 
   } else if (rtype == MDNS_RECORDTYPE_TXT) {
 
     size_t parsed = mdns_record_parse_txt(data, size, offset, length,
                                           txtbuffer, sizeof(txtbuffer) / sizeof(mdns_record_txt_t));
+
     for (size_t itxt = 0; itxt < parsed; ++itxt) {
+
+      rec = rec + ", \"type\": \"TXT\"";
 
       if (txtbuffer[itxt].value.length) {
 
-        printf("%.*s : %s TXT %.*s = %.*s\n",
-               MDNS_STRING_FORMAT(fromaddrstr), entrytype,
-               MDNS_STRING_FORMAT(txtbuffer[itxt].key),
-               MDNS_STRING_FORMAT(txtbuffer[itxt].value));
+        rec = rec + ", \"key\": \"" + std::string(txtbuffer[itxt].key.str, txtbuffer[itxt].key.length) + "\"";
+        rec = rec + ", \"key\": \"" + std::string(txtbuffer[itxt].value.str, txtbuffer[itxt].value.length) + "\"";
 
-        List txt_l = List::create(
-          _["from"] = String(fromaddrstr.str),
-          _["type"] = String("TXT"),
-          _["entry_type"] = String(entrytype),
-          _["key"] = String(txtbuffer[itxt].key.str),
-          _["value"] = String(txtbuffer[itxt].value.str)
-        );
-
-        l->push_back(txt_l);
+        // printf("%.*s : %s TXT %.*s = %.*s\n",
+        //        MDNS_STRING_FORMAT(fromaddrstr), entrytype,
+        //        MDNS_STRING_FORMAT(txtbuffer[itxt].key),
+        //        MDNS_STRING_FORMAT(txtbuffer[itxt].value));
 
       } else {
 
-        printf("%.*s : %s TXT %.*s\n",
-               MDNS_STRING_FORMAT(fromaddrstr), entrytype,
-               MDNS_STRING_FORMAT(txtbuffer[itxt].key));
+        rec = rec + ", \"key\": \"" + std::string(txtbuffer[itxt].key.str, txtbuffer[itxt].key.length) + "\"";
 
-        List txt_l = List::create(
-          _["from"] = String(fromaddrstr.str),
-          _["type"] = String("TXT"),
-          _["entry_type"] = String(entrytype),
-          _["key"] = String(txtbuffer[itxt].key.str)
-        );
-
-        l->push_back(txt_l);
-
+        // printf("%.*s : %s TXT %.*s\n",
+        //        MDNS_STRING_FORMAT(fromaddrstr), entrytype,
+        //        MDNS_STRING_FORMAT(txtbuffer[itxt].key));
       }
 
     }
 
   } else {
 
-    List generic_l = List::create(
-      _["from"]   = String(fromaddrstr.str),
-      _["entry_type"] = entrytype,
-      _["type"]   = NA_STRING,
-      _["rclass"] = rclass,
-      _["ttl"]    = ttl,
-      _["length"] = length
-    );
+    rec = rec + ", \"type\": \"" + std::to_string((long)entrytype) + "";
+    rec = rec + ", \"rclass\": " + std::to_string(rclass) + "";
+    rec = rec + ", \"rtype\": " + std::to_string(rtype) + "";
+    rec = rec + ", \"ttl\": " + std::to_string(ttl) + "";
+    rec = rec + ", \"length\": " + std::to_string(length) + "";
 
-    l->push_back(generic_l);
-
-    printf("%.*s : %s type %u rclass 0x%x ttl %u length %d\n",
-           MDNS_STRING_FORMAT(fromaddrstr), entrytype,
-           rtype, rclass, ttl, (int)length);
+    // printf("%.*s : %s type %u rclass 0x%x ttl %u length %d\n",
+    //        MDNS_STRING_FORMAT(fromaddrstr), entrytype,
+    //        rtype, rclass, ttl, (int)length);
 
   }
+
+  rec = rec + " }\n";
+
+  std::fputs(rec.c_str(), (FILE *)user_data);
 
   return 0;
 
 }
 
-//' @export
 // [[Rcpp::export]]
-List int_bnjr_discover() {
+std::string int_bnjr_discover(int scan_time = 10L) {
 
 #ifdef _WIN32
   WORD versionWanted = MAKEWORD(1, 1);
   WSADATA wsaData;
   if (WSAStartup(versionWanted, &wsaData)) {
     printf("Failed to initialize WinSock\n");
-    return -1;
-  }
-#endif
-
-  size_t capacity = 2048;
-  void* buffer = malloc(capacity);
-  size_t records;
-
-  List out = List::create();
-
-  int port = 0;
-  int sock = mdns_socket_open_ipv4(port);
-
-  if (sock < 0) return(out);
-
-  if (mdns_discovery_send(sock)) {
-    goto failnice;
-  }
-
-  for (int i = 0; i < 10; ++i) {
-
-    do {
-
-      records = mdns_discovery_recv(
-        sock, buffer, capacity,
-        query_callback, &out
-      );
-
-    } while (records);
-
-    if (records) i = 0;
-
-    sleep(1);
-
-  }
-
-  failnice:
-    free(buffer);
-
-    mdns_socket_close(sock);
-
-#ifdef _WIN32
-    WSACleanup();
-#endif
-
-    return(out);
-
-}
-
-//' @export
-// [[Rcpp::export]]
-List int_bnjr_query_send(std::string svc) {
-
-#ifdef _WIN32
-  WORD versionWanted = MAKEWORD(1, 1);
-  WSADATA wsaData;
-  if (WSAStartup(versionWanted, &wsaData)) {
-    printf("Failed to initialize WinSock\n");
-    return -1;
+    return();
   }
 #endif
 
@@ -297,36 +209,29 @@ List int_bnjr_query_send(std::string svc) {
   void* user_data = 0;
   size_t records;
 
-  List out = List::create();
+  std::string out;
+
+  std::FILE* tmpf = std::tmpfile();
 
   int port = 0;
   int sock = mdns_socket_open_ipv4(port);
 
-  if (sock < 0) return(out);
-
-  Rcout << "SERVICE: " << svc.c_str() << std::endl;
+  if (sock < 0) {
+    printf("Failed to open socket: %s\n", strerror(errno));
+    goto quit_int_bnjr_discover;
+  }
 
   if (mdns_discovery_send(sock)) {
-    Rcout << "FAILED" << std::endl;
-    goto failnice2;
+    printf("Failed to send DNS-DS discovery: %s\n", strerror(errno));
+    goto quit_int_bnjr_discover;
   }
 
-  if (mdns_query_send(sock, MDNS_RECORDTYPE_PTR,
-                      svc.c_str(), svc.length(),
-                  buffer, capacity)) {
-    Rcout << "FAILED" << std::endl;
-    goto failnice2;
-  }
-
-  for (int i = 0; i < 10; ++i) {
+  for (int i = 0; i < scan_time; ++i) {
 
     do {
-      records = mdns_query_recv(
-        sock, buffer, capacity, query_callback, &out, 1
+      records = mdns_discovery_recv(
+        sock, buffer, capacity, query_callback, tmpf
       );
-
-      Rcout << "RECORDS: " << records << std::endl;
-
     } while (records);
 
     if (records) i = 0;
@@ -335,15 +240,100 @@ List int_bnjr_query_send(std::string svc) {
 
   }
 
-  failnice2:
+  std::rewind(tmpf);
+
+  char fbuf[1024];
+
+  while (std::fgets(fbuf, sizeof(fbuf), tmpf)) {
+    out = out + std::string(fbuf, strlen(fbuf));
+  }
+
+  std::fclose(tmpf);
+
+  quit_int_bnjr_discover:
+
     free(buffer);
 
-    mdns_socket_close(sock);
+  if (sock >= 0) mdns_socket_close(sock);
 
 #ifdef _WIN32
-    WSACleanup();
+  WSACleanup();
 #endif
 
-   return(out);
+  return(out);
+
+}
+
+// [[Rcpp::export]]
+std::string int_bnjr_query(std::string q, int scan_time = 5L) {
+
+#ifdef _WIN32
+  WORD versionWanted = MAKEWORD(1, 1);
+  WSADATA wsaData;
+  if (WSAStartup(versionWanted, &wsaData)) {
+    printf("Failed to initialize WinSock\n");
+    return();
+  }
+#endif
+
+  size_t capacity = 2048;
+  void* buffer = malloc(capacity);
+  void* user_data = 0;
+  size_t records;
+
+  std::FILE* tmpf = std::tmpfile();
+
+  std::string out;
+
+  int port = 0;
+  int sock = mdns_socket_open_ipv4(port);
+
+  if (sock < 0) {
+    printf("Failed to open socket: %s\n", strerror(errno));
+    goto quit_int_bnjr_query_send;
+  }
+
+  if (mdns_query_send(sock, MDNS_RECORDTYPE_PTR,
+                      q.c_str(), q.length(),
+                      buffer, capacity)) {
+    printf("Failed to send mDNS query: %s\n", strerror(errno));
+    goto quit_int_bnjr_query_send;
+  }
+
+  for (int i = 0; i < scan_time; ++i) {
+
+    do {
+      records = mdns_query_recv(
+        sock, buffer, capacity, query_callback, tmpf, 1
+      );
+    } while (records);
+
+    if (records) i = 0;
+
+    sleep(1);
+
+  }
+
+  std::rewind(tmpf);
+
+  char fbuf[1024];
+
+  while (std::fgets(fbuf, sizeof(fbuf), tmpf)) {
+    out = out + std::string(fbuf, strlen(fbuf));
+  }
+
+  std::fclose(tmpf);
+
+  quit_int_bnjr_query_send:
+
+    free(buffer);
+
+  if (sock >= 0) mdns_socket_close(sock);
+
+#ifdef _WIN32
+  WSACleanup();
+#endif
+
+  return(out);
 
 }

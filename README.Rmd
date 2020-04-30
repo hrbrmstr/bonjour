@@ -33,10 +33,21 @@ hrbrpkghelpr::install_block()
 
 ```{r lib-ex}
 library(bonjour)
+library(tidyverse)
 
 # current version
 packageVersion("bonjour")
 
+```
+
+```{r ex-01, cache = TRUE}
+bnjr_discover()
+```
+
+```{r ex-02, cache = TRUE}
+bnjr_query("_ssh._tcp.local.") %>% 
+  filter(type == "AAAA") %>% 
+  select(addr)
 ```
 
 ## bonjour Metrics

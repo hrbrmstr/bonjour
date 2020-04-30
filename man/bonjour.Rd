@@ -4,9 +4,17 @@
 \name{bonjour}
 \alias{bonjour}
 \alias{bonjour-package}
-\title{...}
+\title{Discover and Query Multicast DNS (mDNS)/zeroconf Services}
 \description{
-A good description goes here otherwise CRAN checks fail.
+#' Multicast DNS (mDNS) provides the ability to perform DNS-like
+operations on the local link in the absence of any conventional
+Unicast DNS server. Given a type of service
+that a client is looking for, and a domain in which the client is
+looking for that service, this mechanism allows clients to discover
+a list of named instances of that desired service, using standard
+DNS queries.  This mechanism is referred to as DNS-based Service
+Discovery, or DNS-SD. Tools are provided to perform service discovery
+and query for specific services over multicast DNS (mDNS).
 }
 \seealso{
 Useful links:
