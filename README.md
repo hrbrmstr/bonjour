@@ -37,6 +37,8 @@ The following functions are implemented:
 ## Installation
 
 ``` r
+install.packages("bonjour", repos = c("https://cinc.rud.is", "https://cloud.r-project.org/"))
+# or
 remotes::install_git("https://git.rud.is/hrbrmstr/bonjour.git")
 # or
 remotes::install_git("https://git.sr.ht/~hrbrmstr/bonjour")
@@ -44,6 +46,8 @@ remotes::install_git("https://git.sr.ht/~hrbrmstr/bonjour")
 remotes::install_gitlab("hrbrmstr/bonjour")
 # or
 remotes::install_bitbucket("hrbrmstr/bonjour")
+# or
+remotes::install_github("hrbrmstr/bonjour")
 ```
 
 NOTE: To use the ‘remotes’ install options you will need to have the
