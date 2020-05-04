@@ -2,15 +2,26 @@
 % Please edit documentation in R/query.R
 \name{bnjr_query}
 \alias{bnjr_query}
+\alias{bjr_query}
+\alias{mdns_query}
 \title{Look for a particular service}
 \usage{
-bnjr_query(query, scan_time = 10L)
+bnjr_query(query, scan_time = 10L, proto = c("ipv4", "ipv6"))
+
+bjr_query(query, scan_time = 10L, proto = c("ipv4", "ipv6"))
+
+mdns_query(query, scan_time = 10L, proto = c("ipv4", "ipv6"))
 }
 \arguments{
 \item{query}{service to look for}
 
 \item{scan_time}{how long to scan for services; default is 10 and
 should not really be that much lower in most networks.}
+
+\item{proto}{"\code{ipv4}" or "\code{ipv6}"}
+}
+\value{
+data frame
 }
 \description{
 Look for a particular service

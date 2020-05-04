@@ -732,10 +732,10 @@ mdns_discovery_recv(int sock, void* buffer, size_t capacity,
 
 	size_t offset = (size_t)((char*)data - (char*)buffer);
 	records += mdns_records_parse(sock, saddr, addrlen, buffer, data_size, &offset,
-	                              MDNS_ENTRYTYPE_AUTHORITY, transaction_id, authority_rrs, 
+	                              MDNS_ENTRYTYPE_AUTHORITY, transaction_id, authority_rrs,
 	                              callback, user_data);
 	records += mdns_records_parse(sock, saddr, addrlen, buffer, data_size, &offset,
-	                              MDNS_ENTRYTYPE_ADDITIONAL, transaction_id, additional_rrs, 
+	                              MDNS_ENTRYTYPE_ADDITIONAL, transaction_id, additional_rrs,
 	                              callback, user_data);
 
 	return records;
@@ -757,15 +757,15 @@ mdns_socket_listen(int sock, void* buffer, size_t capacity,
 		return 0;
 
 	size_t data_size = (size_t)ret;
-	size_t records = 0;
+	//size_t records = 0;
 	uint16_t* data = (uint16_t*)buffer;
 
 	uint16_t transaction_id = ntohs(*data++);
 	uint16_t flags          = ntohs(*data++);
 	uint16_t questions      = ntohs(*data++);
-	uint16_t answer_rrs     = ntohs(*data++);
-	uint16_t authority_rrs  = ntohs(*data++);
-	uint16_t additional_rrs = ntohs(*data++);
+	//uint16_t answer_rrs     = ntohs(*data++);
+	//uint16_t authority_rrs  = ntohs(*data++);
+	//uint16_t additional_rrs = ntohs(*data++);
 
 	size_t parsed = 0;
 	for (int iquestion = 0; iquestion < questions; ++iquestion) {
@@ -918,13 +918,13 @@ mdns_query_recv(int sock, void* buffer, size_t capacity,
 	size_t records = 0;
 	size_t offset = MDNS_POINTER_DIFF(data, buffer);
 	records += mdns_records_parse(sock, saddr, addrlen, buffer, data_size, &offset,
-	                              MDNS_ENTRYTYPE_ANSWER, transaction_id, answer_rrs, 
+	                              MDNS_ENTRYTYPE_ANSWER, transaction_id, answer_rrs,
 	                              callback, user_data);
 	records += mdns_records_parse(sock, saddr, addrlen, buffer, data_size, &offset,
-	                              MDNS_ENTRYTYPE_AUTHORITY, transaction_id, authority_rrs, 
+	                              MDNS_ENTRYTYPE_AUTHORITY, transaction_id, authority_rrs,
 	                              callback, user_data);
 	records += mdns_records_parse(sock, saddr, addrlen, buffer, data_size, &offset,
-	                              MDNS_ENTRYTYPE_ADDITIONAL, transaction_id, additional_rrs, 
+	                              MDNS_ENTRYTYPE_ADDITIONAL, transaction_id, additional_rrs,
 	                              callback, user_data);
 	return records;
 }
@@ -965,7 +965,7 @@ mdns_query_answer(int sock, const void* address, size_t address_size, void* buff
 	*udata++ = htons(MDNS_CLASS_IN);
 	data = udata;
 	remain = capacity - MDNS_POINTER_DIFF(data, buffer);
-	
+
 	//Fill in answers
 	//PTR record for service
 	data = mdns_string_make_ref(data, remain, service_offset);
@@ -1165,7 +1165,7 @@ mdns_record_parse_txt(const void* buffer, size_t size, size_t offset, size_t len
 		++parsed;
 	}
 
-	return parsed;	
+	return parsed;
 }
 
 #ifdef _WIN32

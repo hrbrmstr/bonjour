@@ -61,25 +61,25 @@ library(tidyverse)
 
 # current version
 packageVersion("bonjour")
-## [1] '0.1.0'
+## [1] '0.2.0'
 ```
 
 ``` r
 bnjr_discover()
-## # A tibble: 49 x 7
-##    entry_type from             length name                        rclass   ttl type 
-##    <chr>      <chr>             <dbl> <chr>                        <dbl> <dbl> <chr>
-##  1 answer     10.1.10.59:5353      12 _ssh._tcp.local.                 1    10 PTR  
-##  2 answer     10.1.10.59:5353      12 _sftp-ssh._tcp.local.            1    10 PTR  
-##  3 answer     10.1.10.59:5353       8 _eppc._tcp.local.                1    10 PTR  
-##  4 answer     10.1.10.59:5353       7 _rfb._tcp.local.                 1    10 PTR  
-##  5 answer     10.1.10.59:5353       7 _smb._tcp.local.                 1    10 PTR  
-##  6 answer     10.1.10.59:5353      17 _net-assistant._udp.local.       1    10 PTR  
-##  7 answer     10.1.10.59:5353      18 _companion-link._tcp.local.      1    10 PTR  
-##  8 answer     10.1.10.192:5353     12 _smb._tcp.local.                 1    10 PTR  
-##  9 answer     10.1.10.20:5353      14 _adisk._tcp.local.               1    10 PTR  
-## 10 answer     10.1.10.20:5353       7 _ssh._tcp.local.                 1    10 PTR  
-## # … with 39 more rows
+## # A tibble: 58 x 7
+##    entry_type from            length name                        rclass   ttl type 
+##    <chr>      <chr>            <dbl> <chr>                        <dbl> <dbl> <chr>
+##  1 answer     10.1.10.20:5353     14 _adisk._tcp.local.               1    10 PTR  
+##  2 answer     10.1.10.20:5353      7 _ssh._tcp.local.                 1    10 PTR  
+##  3 answer     10.1.10.20:5353     12 _sftp-ssh._tcp.local.            1    10 PTR  
+##  4 answer     10.1.10.20:5353      8 _eppc._tcp.local.                1    10 PTR  
+##  5 answer     10.1.10.20:5353      7 _rfb._tcp.local.                 1    10 PTR  
+##  6 answer     10.1.10.20:5353      7 _smb._tcp.local.                 1    10 PTR  
+##  7 answer     10.1.10.20:5353      7 _nfs._tcp.local.                 1    10 PTR  
+##  8 answer     10.1.10.20:5353     17 _net-assistant._udp.local.       1    10 PTR  
+##  9 answer     10.1.10.20:5353     18 _companion-link._tcp.local.      1    10 PTR  
+## 10 answer     10.1.10.20:5353     14 _1password4._tcp.local.          1    10 PTR  
+## # … with 48 more rows
 ```
 
 ``` r
@@ -89,13 +89,13 @@ bnjr_query("_ssh._tcp.local.") %>%
 ## # A tibble: 9 x 1
 ##   addr                                   
 ##   <chr>                                  
-## 1 fe80::1410:647:b4c1:df43               
-## 2 2603:3005:146a:8000:1459:ebc3:42dc:5ae2
-## 3 fe80::1864:a1e2:98b:44d0               
-## 4 2603:3005:146a:8000:189b:85a2:64f5:598f
-## 5 fe80::18f8:a74b:6a0d:9175              
-## 6 2603:3005:146a:8000:c98:42f7:9943:4b73 
-## 7 2603:3005:146a:8000:6972:7ff9:9594:5467
+## 1 fe80::1864:a1e2:98b:44d0               
+## 2 2603:3005:146a:8000:189b:85a2:64f5:598f
+## 3 2603:3005:146a:8000:c98:42f7:9943:4b73 
+## 4 fe80::18f8:a74b:6a0d:9175              
+## 5 fe80::c24:9c04:594:5f28                
+## 6 2603:3005:146a:8000:1459:ebc3:42dc:5ae2
+## 7 2603:3005:146a:8000:14b9:cc5f:f330:90f8
 ## 8 fe80::1041:d138:41f8:efd5              
 ## 9 2603:3005:146a:8000:c95:dcb9:cc3a:d030
 ```
@@ -104,10 +104,10 @@ bnjr_query("_ssh._tcp.local.") %>%
 
 | Lang         | \# Files |  (%) | LoC |  (%) | Blank lines |  (%) | \# Lines |  (%) |
 | :----------- | -------: | ---: | --: | ---: | ----------: | ---: | -------: | ---: |
-| C/C++ Header |        1 | 0.11 | 936 | 0.76 |         154 | 0.55 |       87 | 0.47 |
-| C++          |        2 | 0.22 | 255 | 0.21 |          97 | 0.35 |       28 | 0.15 |
-| R            |        5 | 0.56 |  22 | 0.02 |          11 | 0.04 |       38 | 0.21 |
-| Rmd          |        1 | 0.11 |  13 | 0.01 |          17 | 0.06 |       32 | 0.17 |
+| C/C++ Header |        1 | 0.11 | 932 | 0.76 |         154 | 0.54 |       91 | 0.46 |
+| C++          |        2 | 0.22 | 261 | 0.21 |         101 | 0.35 |       31 | 0.16 |
+| R            |        5 | 0.56 |  26 | 0.02 |          15 | 0.05 |       46 | 0.23 |
+| Rmd          |        1 | 0.11 |  13 | 0.01 |          17 | 0.06 |       32 | 0.16 |
 
 ## Code of Conduct
 

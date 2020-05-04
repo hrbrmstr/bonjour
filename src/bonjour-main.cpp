@@ -19,7 +19,7 @@ using namespace Rcpp;
 
 static char addrbuffer[64];
 static char namebuffer[256];
-static char sendbuffer[256];
+//static char sendbuffer[256];
 static mdns_record_txt_t txtbuffer[128];
 
 typedef struct {
@@ -110,6 +110,13 @@ static int query_callback(int sock, const struct sockaddr* from, size_t addrlen,
 
     mdns_record_srv_t srv = mdns_record_parse_srv(data, size, offset, length,
                                                   namebuffer, sizeof(namebuffer));
+
+    rec = rec + ", \"type\": \"SRV\"";
+    rec = rec + ", \"srv_name\": \"" + std::string(srv.name.str, srv.name.length) + "\"";
+    rec = rec + ", \"srv_priority\": " + std::to_string(srv.priority) + "";
+    rec = rec + ", \"srv_weight\": " + std::to_string(srv.weight) + "";
+    rec = rec + ", \"srv_port\": " + std::to_string(srv.port) + "";
+
     // printf("%.*s : %s SRV %.*s priority %d weight %d port %d\n",
     //        MDNS_STRING_FORMAT(fromaddrstr), entrytype,
     //        MDNS_STRING_FORMAT(srv.name), srv.priority, srv.weight, srv.port);
@@ -193,20 +200,22 @@ static int query_callback(int sock, const struct sockaddr* from, size_t addrlen,
 }
 
 // [[Rcpp::export]]
-std::string int_bnjr_discover(int scan_time = 10L) {
+std::string int_bnjr_discover(int scan_time = 10L, std::string proto = "ipv4") {
 
 #ifdef _WIN32
   WORD versionWanted = MAKEWORD(1, 1);
   WSADATA wsaData;
   if (WSAStartup(versionWanted, &wsaData)) {
-    printf("Failed to initialize WinSock\n");
+    Rf_warning("Failed to initialize WinSock\n");
     return();
   }
 #endif
 
+  if (!((proto == "ipv4") || (proto == "ipv6"))) proto = "ipv4";
+
   size_t capacity = 2048;
   void* buffer = malloc(capacity);
-  void* user_data = 0;
+  //void* user_data = 0;
   size_t records;
 
   std::string out;
@@ -214,15 +223,15 @@ std::string int_bnjr_discover(int scan_time = 10L) {
   std::FILE* tmpf = std::tmpfile();
 
   int port = 0;
-  int sock = mdns_socket_open_ipv4(port);
+  int sock = (proto == "ipv4") ? mdns_socket_open_ipv4(port) : mdns_socket_open_ipv6(port);
 
   if (sock < 0) {
-    printf("Failed to open socket: %s\n", strerror(errno));
+    Rf_warning("Failed to open socket: %s\n", strerror(errno));
     goto quit_int_bnjr_discover;
   }
 
   if (mdns_discovery_send(sock)) {
-    printf("Failed to send DNS-DS discovery: %s\n", strerror(errno));
+    Rf_warning("Failed to send DNS-DS discovery: %s\n", strerror(errno));
     goto quit_int_bnjr_discover;
   }
 
@@ -265,20 +274,22 @@ std::string int_bnjr_discover(int scan_time = 10L) {
 }
 
 // [[Rcpp::export]]
-std::string int_bnjr_query(std::string q, int scan_time = 5L) {
+std::string int_bnjr_query(std::string q, int scan_time = 5L, std::string proto = "ipv4") {
 
 #ifdef _WIN32
   WORD versionWanted = MAKEWORD(1, 1);
   WSADATA wsaData;
   if (WSAStartup(versionWanted, &wsaData)) {
-    printf("Failed to initialize WinSock\n");
+    Rf_warning("Failed to initialize WinSock\n");
     return();
   }
 #endif
 
+  if (!((proto == "ipv4") || (proto == "ipv6"))) proto = "ipv4";
+
   size_t capacity = 2048;
   void* buffer = malloc(capacity);
-  void* user_data = 0;
+  //void* user_data = 0;
   size_t records;
 
   std::FILE* tmpf = std::tmpfile();
@@ -286,17 +297,17 @@ std::string int_bnjr_query(std::string q, int scan_time = 5L) {
   std::string out;
 
   int port = 0;
-  int sock = mdns_socket_open_ipv4(port);
+  int sock = (proto == "ipv4") ? mdns_socket_open_ipv4(port) : mdns_socket_open_ipv6(port);
 
   if (sock < 0) {
-    printf("Failed to open socket: %s\n", strerror(errno));
+    Rf_warning("Failed to open socket: %s\n", strerror(errno));
     goto quit_int_bnjr_query_send;
   }
 
   if (mdns_query_send(sock, MDNS_RECORDTYPE_PTR,
                       q.c_str(), q.length(),
                       buffer, capacity)) {
-    printf("Failed to send mDNS query: %s\n", strerror(errno));
+    Rf_warning("Failed to send mDNS query: %s\n", strerror(errno));
     goto quit_int_bnjr_query_send;
   }
 

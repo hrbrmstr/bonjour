@@ -1,11 +1,13 @@
 Package: bonjour
 Type: Package
 Title: Discover and Query Multicast DNS (mDNS)/zeroconf Services
-Version: 0.1.0
-Date: 2020-04-29
+Version: 0.2.0
+Date: 2020-05-04
 Authors@R: c(
-    person("Bob", "Rudis", email = "bob@rud.is", role = c("aut", "cre"), 
-           comment = c(ORCID = "0000-0001-5670-2640"))
+   person("Bob", "Rudis", email = "bob@rud.is", role = c("aut", "cre"), 
+          comment = c(ORCID = "0000-0001-5670-2640")),
+   person("Mattias", "Jansson", email = "mjansson@gmail.com", role = "aut",
+          comment = "https://github.com/mjansson/mdns")
   )
 Maintainer: Bob Rudis <bob@rud.is>
 Description: Multicast DNS (mDNS) provides the ability to perform DNS-like
