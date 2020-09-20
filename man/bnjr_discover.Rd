@@ -6,17 +6,15 @@
 \alias{mdns_discover}
 \title{Browse available services}
 \usage{
-bnjr_discover(scan_time = 10L, proto = c("ipv4", "ipv6"))
+bnjr_discover(scan_time = 10L)
 
-bjr_discover(scan_time = 10L, proto = c("ipv4", "ipv6"))
+bjr_discover(scan_time = 10L)
 
-mdns_discover(scan_time = 10L, proto = c("ipv4", "ipv6"))
+mdns_discover(scan_time = 10L)
 }
 \arguments{
 \item{scan_time}{how long to scan for services; default is 10 and
 should not really be that much lower in most networks.}
-
-\item{proto}{"\code{ipv4}" or "\code{ipv6}"}
 }
 \value{
 data frame

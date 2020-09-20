@@ -6,34 +6,32 @@
 using namespace Rcpp;
 
 // int_bnjr_discover
-std::string int_bnjr_discover(int scan_time, std::string proto);
-RcppExport SEXP _bonjour_int_bnjr_discover(SEXP scan_timeSEXP, SEXP protoSEXP) {
+std::string int_bnjr_discover(int scan_time);
+RcppExport SEXP _bonjour_int_bnjr_discover(SEXP scan_timeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type scan_time(scan_timeSEXP);
-    Rcpp::traits::input_parameter< std::string >::type proto(protoSEXP);
-    rcpp_result_gen = Rcpp::wrap(int_bnjr_discover(scan_time, proto));
+    rcpp_result_gen = Rcpp::wrap(int_bnjr_discover(scan_time));
     return rcpp_result_gen;
 END_RCPP
 }
 // int_bnjr_query
-std::string int_bnjr_query(std::string q, int scan_time, std::string proto);
-RcppExport SEXP _bonjour_int_bnjr_query(SEXP qSEXP, SEXP scan_timeSEXP, SEXP protoSEXP) {
+std::string int_bnjr_query(std::string q, int scan_time);
+RcppExport SEXP _bonjour_int_bnjr_query(SEXP qSEXP, SEXP scan_timeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< std::string >::type q(qSEXP);
     Rcpp::traits::input_parameter< int >::type scan_time(scan_timeSEXP);
-    Rcpp::traits::input_parameter< std::string >::type proto(protoSEXP);
-    rcpp_result_gen = Rcpp::wrap(int_bnjr_query(q, scan_time, proto));
+    rcpp_result_gen = Rcpp::wrap(int_bnjr_query(q, scan_time));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_bonjour_int_bnjr_discover", (DL_FUNC) &_bonjour_int_bnjr_discover, 2},
-    {"_bonjour_int_bnjr_query", (DL_FUNC) &_bonjour_int_bnjr_query, 3},
+    {"_bonjour_int_bnjr_discover", (DL_FUNC) &_bonjour_int_bnjr_discover, 1},
+    {"_bonjour_int_bnjr_query", (DL_FUNC) &_bonjour_int_bnjr_query, 2},
     {NULL, NULL, 0}
 };
 

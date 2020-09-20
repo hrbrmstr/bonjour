@@ -1,8 +1,8 @@
 Package: bonjour
 Type: Package
 Title: Discover and Query Multicast DNS (mDNS)/zeroconf Services
-Version: 0.2.0
-Date: 2020-05-04
+Version: 0.3.0
+Date: 2020-09-20
 Authors@R: c(
    person("Bob", "Rudis", email = "bob@rud.is", role = c("aut", "cre"), 
           comment = c(ORCID = "0000-0001-5670-2640")),
@@ -27,11 +27,11 @@ License: MIT + file LICENSE
 Suggests: 
     covr, tinytest
 Depends: 
-    R (>= 3.2.0)
+    R (>= 3.6.0)
 Imports: 
     Rcpp,
     ndjson
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 LinkingTo: 
     Rcpp

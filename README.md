@@ -7,9 +7,11 @@ by](https://img.shields.io/badge/Keybase-Verified-brightgreen.svg)](https://keyb
 ![Signed commit
 %](https://img.shields.io/badge/Signed_Commits-100%25-lightgrey.svg)
 [![Linux build
-Status](https://travis-ci.org/hrbrmstr/bonjour.svg?branch=master)](https://travis-ci.org/hrbrmstr/bonjour)  
+Status](https://travis-ci.org/hrbrmstr/bonjour.svg?branch=master)](https://travis-ci.org/hrbrmstr/bonjour)
+[![Coverage
+Status](https://codecov.io/gh/hrbrmstr/bonjour/branch/master/graph/badge.svg)](https://codecov.io/gh/hrbrmstr/bonjour)
 ![Minimal R
-Version](https://img.shields.io/badge/R%3E%3D-3.2.0-blue.svg)
+Version](https://img.shields.io/badge/R%3E%3D-3.6.0-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
 # bonjour
@@ -102,12 +104,15 @@ bnjr_query("_ssh._tcp.local.") %>%
 
 ## bonjour Metrics
 
-| Lang         | \# Files |  (%) | LoC |  (%) | Blank lines |  (%) | \# Lines |  (%) |
-| :----------- | -------: | ---: | --: | ---: | ----------: | ---: | -------: | ---: |
-| C/C++ Header |        1 | 0.11 | 932 | 0.76 |         154 | 0.54 |       91 | 0.46 |
-| C++          |        2 | 0.22 | 261 | 0.21 |         101 | 0.35 |       31 | 0.16 |
-| R            |        5 | 0.56 |  26 | 0.02 |          15 | 0.05 |       46 | 0.23 |
-| Rmd          |        1 | 0.11 |  13 | 0.01 |          17 | 0.06 |       32 | 0.16 |
+| Lang         | \# Files |  (%) |  LoC |  (%) | Blank lines |  (%) | \# Lines |  (%) |
+| :----------- | -------: | ---: | ---: | ---: | ----------: | ---: | -------: | ---: |
+| C/C++ Header |        1 | 0.06 |  980 | 0.33 |         159 | 0.26 |      129 | 0.26 |
+| C++          |        2 | 0.11 |  462 | 0.16 |         113 | 0.19 |       40 | 0.08 |
+| R            |        5 | 0.28 |   24 | 0.01 |          13 | 0.02 |       44 | 0.09 |
+| Rmd          |        1 | 0.06 |   13 | 0.00 |          17 | 0.03 |       31 | 0.06 |
+| SUM          |        9 | 0.50 | 1479 | 0.50 |         302 | 0.50 |      244 | 0.50 |
+
+clock Package Metrics for bonjour
 
 ## Code of Conduct
 
