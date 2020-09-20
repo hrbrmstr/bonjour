@@ -30,7 +30,7 @@ Depends:
     R (>= 3.6.0)
 Imports: 
     Rcpp,
-    ndjson
+    jsonlite
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 LinkingTo: 

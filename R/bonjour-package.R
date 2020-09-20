@@ -14,7 +14,7 @@
 #' @name bonjour
 #' @keywords internal
 #' @author Bob Rudis (bob@@rud.is)
-#' @importFrom ndjson flatten
+#' @importFrom jsonlite stream_in
 ## usethis namespace: start
 #' @importFrom Rcpp sourceCpp
 #' @useDynLib bonjour, .registration = TRUE

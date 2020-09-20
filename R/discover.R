@@ -7,8 +7,11 @@
 bnjr_discover <- function(scan_time = 10L) {
 
   res <- int_bnjr_discover(scan_time)
-  res <- unlist(strsplit(res, "\n"))
-  ndjson::flatten(res, "tbl")
+  # res <- unlist(strsplit(res, "\n", useBytes = TRUE))
+  # ndjson::flatten(res, "tbl")
+  res <- jsonlite::stream_in(textConnection(res), verbose = FALSE)
+  class(res) <- c("tbl_df", "tbl", "data.frame")
+  res
 
 }
 
